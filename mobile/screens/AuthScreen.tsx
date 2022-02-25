@@ -9,6 +9,8 @@ import {
 import React, { useState } from 'react';
 
 export default function AuthScreen() {
+  const API_URL = 'http://192.168.1.182:5000';
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +19,51 @@ export default function AuthScreen() {
   const [isError, setIsError] = useState(false);
   const [message, setMessage] = useState('');
 
-  const onSubmitHandler = () => {};
+  const fetchPrivateResource = async (token: string) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
+    const method = 'GET';
+    try {
+      const res = await fetch(`${API_URL}/private`, { method, headers });
+      const data = await res.json();
+
+      if (res.status === 200) {
+        setMessage(data.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const onSubmitHandler = async () => {
+    const headers = { 'Content-Type': 'application/json' };
+    const method = 'POST';
+    const body = JSON.stringify({ email, password, name });
+
+    try {
+      const res = await fetch(`${API_URL}/${isLogin ? 'login' : 'signup'}`, {
+        method,
+        headers,
+        body,
+      });
+
+      const data = await res.json();
+
+      if (res.status !== 200) {
+        setIsError(true);
+        setMessage(data.message);
+      } else {
+        fetchPrivateResource(data.token);
+        setIsError(false);
+        setMessage(data.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const changeFormHandler = () => {
     setIsLogin(!isLogin);
@@ -130,8 +176,9 @@ const styles = StyleSheet.create({
   },
 
   message: {
-    fontSize: 16,
+    fontSize: 18,
     marginVertical: '5%',
+    marginBottom: 10,
   },
 
   button: {

@@ -8,7 +8,7 @@ const auth_1 = require("../controller/auth");
 const router = express_1.default.Router();
 router.post('/login', auth_1.login);
 router.post('/signup', auth_1.signup);
-router.post('/private', auth_1.isAuth);
+router.get('/private', auth_1.isAuth);
 router.get('/public', (req, res, next) => {
     res.status(200).json({ message: 'here is your public resource' });
 });
